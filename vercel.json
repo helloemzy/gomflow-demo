@@ -1,24 +1,17 @@
 {
   "name": "gomflow-demo",
-  "version": 2,
-  "builds": [
-    {
-      "src": "gomflow-core/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": ".next"
-      }
+  "buildCommand": "cd gomflow-shared && npm ci && npm run build && cd ../gomflow-core && npm ci && npm link ../gomflow-shared && npm run build",
+  "outputDirectory": "gomflow-core/.next",
+  "installCommand": "cd gomflow-shared && npm ci && cd ../gomflow-core && npm ci",
+  "framework": "nextjs",
+  "functions": {
+    "gomflow-core/src/app/api/**/*.ts": {
+      "maxDuration": 10
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "gomflow-core/$1"
-    }
-  ],
+  },
   "env": {
     "DEMO_MODE": "true",
-    "NODE_ENV": "development",
+    "NODE_ENV": "development", 
     "NEXT_PUBLIC_DEMO_MODE": "true",
     "NEXT_PUBLIC_ENABLE_MOCK_PAYMENTS": "true",
     "NEXT_PUBLIC_ENABLE_DEMO_DATA": "true",
@@ -29,11 +22,6 @@
     "JWT_SECRET": "demo_jwt_secret_key_for_testing_only",
     "ENCRYPTION_KEY": "demo_encryption_key_32_chars_long"
   },
-  "functions": {
-    "gomflow-core/src/app/api/**/*.ts": {
-      "maxDuration": 10
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
@@ -43,7 +31,7 @@
           "value": "*"
         },
         {
-          "key": "Access-Control-Allow-Methods",
+          "key": "Access-Control-Allow-Methods", 
           "value": "GET, POST, PUT, DELETE, OPTIONS"
         },
         {
@@ -51,6 +39,12 @@
           "value": "X-Requested-With, Content-Type, Authorization"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/gomflow-core/$1"
     }
   ]
 }
