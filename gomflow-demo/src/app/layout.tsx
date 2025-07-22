@@ -4,8 +4,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'GOMFLOW Demo - Group Order Management Platform',
-  description: 'Revolutionize your group orders with 95% time reduction and unlimited scale',
+  title: 'GOMFLOW - Stop Drowning in Payment Screenshots | K-pop Group Orders',
+  description: 'The group order platform built by GOMs, for GOMs. No more spreadsheet hell - automated payment tracking, instant updates, get your weekends back!',
 }
 
 export default function RootLayout({
