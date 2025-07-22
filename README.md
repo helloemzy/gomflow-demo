@@ -1,5 +1,6 @@
 # 🎭 GOMFLOW - Demo Version
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/helloemzy/gomflow-demo&root-directory=gomflow-core)
 [![Demo Status](https://img.shields.io/badge/demo-live-brightgreen)](https://gomflow-demo.vercel.app)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
