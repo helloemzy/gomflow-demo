@@ -8,12 +8,5 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 10
     }
-  },
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/demo",
-      "permanent": false
-    }
-  ]
+  }
 }
