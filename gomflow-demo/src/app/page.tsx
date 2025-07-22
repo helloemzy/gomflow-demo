@@ -1,44 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  MessageCircle, 
-  Clock, 
-  Heart,
-  Users,
-  Zap,
-  Shield,
-  PlayCircle,
-  CheckCircle,
-  ArrowRight,
-  Star
-} from "lucide-react";
-
 export default function Home() {
-  const router = useRouter();
-  const supabase = createClientComponentClient();
-  const [isDemo, setIsDemo] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        router.push("/dashboard");
-      }
-    };
-    
-    // Check if in demo mode
-    setIsDemo(process.env.NEXT_PUBLIC_DEMO_MODE === 'true');
-    
-    if (!isDemo) {
-      checkAuth();
-    }
-  }, [router, supabase, isDemo]);
-
   const testimonials = [
     {
       name: "Sarah M.",
@@ -86,25 +48,21 @@ export default function Home() {
 
   const solutions = [
     {
-      icon: Zap,
       title: "Create orders in 2 minutes",
       description: "Album templates, automatic pricing, instant form generation",
       demo: "Try creating a SEVENTEEN album order →"
     },
     {
-      icon: CheckCircle,
       title: "Payments track themselves", 
       description: "AI matches payments to buyers automatically - no more screenshots chaos",
       demo: "Upload any image to test →"
     },
     {
-      icon: MessageCircle,
       title: "Buyers get instant updates",
       description: "WhatsApp, Telegram, Discord bots keep everyone informed",
       demo: "See bot responses →"
     },
     {
-      icon: Clock,
       title: "Get your weekends back",
       description: "From 20 hours of manual work to 10 minutes of oversight",
       demo: "Calculate your time savings →"
@@ -122,7 +80,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-purple-100 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
@@ -136,31 +94,22 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {isDemo && (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                  Demo Mode
-                </span>
-              )}
-              <Button 
-                variant="ghost" 
-                onClick={() => router.push("/auth/login")}
-                className="text-purple-600 hover:text-purple-700"
-              >
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                Demo Mode
+              </span>
+              <button className="px-4 py-2 text-purple-600 hover:text-purple-700 font-medium">
                 Sign In
-              </Button>
-              <Button 
-                onClick={() => router.push("/browse")}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              >
+              </button>
+              <button className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium">
                 See Demo
-              </Button>
+              </button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 lg:py-24">
+      <section className="max-w-7xl mx-auto px-4 py-16 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-left">
             <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
@@ -174,27 +123,19 @@ export default function Home() {
               Built by GOMs, for GOMs who are tired of spreadsheet hell.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                onClick={() => router.push("/browse")}
-              >
-                <PlayCircle className="mr-2 h-5 w-5" />
+              <button className="text-lg px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium flex items-center justify-center">
+                <svg className="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
                 See It In Action
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-lg px-8 py-4 border-purple-300 text-purple-600 hover:bg-purple-50"
-                onClick={() => router.push("/orders/create")}
-              >
+              </button>
+              <button className="text-lg px-8 py-4 border-2 border-purple-300 text-purple-600 hover:bg-purple-50 rounded-lg font-medium">
                 Start Your First GO
-              </Button>
+              </button>
             </div>
             <p className="text-sm text-gray-500 mt-4">
               ✨ Free to try • No credit card needed • Used by 500+ GOMs
             </p>
-            {/* K-pop landing page - force fresh deployment */}
           </div>
           
           <div className="relative">
@@ -234,7 +175,7 @@ export default function Home() {
 
       {/* Problem Section */}
       <section className="bg-white/80 py-20">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               We Know Exactly How This Feels...
@@ -246,17 +187,11 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {painPoints.map((point, index) => (
-              <Card key={index} className="text-center border-purple-100 hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="text-6xl mb-4">{point.emoji}</div>
-                  <CardTitle className="text-lg">{point.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base">
-                    {point.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div key={index} className="text-center bg-white p-6 rounded-xl border border-purple-100 hover:shadow-lg transition-shadow">
+                <div className="text-6xl mb-4">{point.emoji}</div>
+                <h3 className="text-lg font-semibold mb-3">{point.title}</h3>
+                <p className="text-gray-600">{point.description}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -264,7 +199,7 @@ export default function Home() {
 
       {/* Solution Section */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               What if group orders could be 
@@ -279,26 +214,18 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {solutions.map((solution, index) => (
-              <Card key={index} className="border-purple-100 hover:shadow-lg transition-all hover:scale-105">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-                    <solution.icon className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <CardTitle className="text-xl">{solution.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base mb-4">
-                    {solution.description}
-                  </CardDescription>
-                  <Button 
-                    variant="ghost" 
-                    className="text-purple-600 hover:text-purple-700 p-0 h-auto"
-                    onClick={() => router.push("/browse")}
-                  >
-                    {solution.demo} <ArrowRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
+              <div key={index} className="bg-white p-6 rounded-xl border border-purple-100 hover:shadow-lg transition-all hover:scale-105">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{solution.title}</h3>
+                <p className="text-gray-600 mb-4">{solution.description}</p>
+                <button className="text-purple-600 hover:text-purple-700 font-medium">
+                  {solution.demo} →
+                </button>
+              </div>
             ))}
           </div>
         </div>
@@ -306,7 +233,7 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <section className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-20">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">
               Real GOMs, Real Success Stories
@@ -318,29 +245,27 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur border-white/20 text-white">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{testimonial.avatar}</span>
-                    <div>
-                      <p className="font-semibold">{testimonial.name}</p>
-                      <p className="text-sm text-purple-100">{testimonial.location}</p>
-                    </div>
+              <div key={index} className="bg-white/10 backdrop-blur border border-white/20 text-white p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">{testimonial.avatar}</span>
+                  <div>
+                    <p className="font-semibold">{testimonial.name}</p>
+                    <p className="text-sm text-purple-100">{testimonial.location}</p>
                   </div>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-purple-50 mb-4">"{testimonial.quote}"</p>
-                  <div className="text-sm">
-                    <p className="font-semibold text-purple-200">{testimonial.role}</p>
-                    <p className="text-purple-300">{testimonial.orders}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="h-4 w-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-purple-50 mb-4">"{testimonial.quote}"</p>
+                <div className="text-sm">
+                  <p className="font-semibold text-purple-200">{testimonial.role}</p>
+                  <p className="text-purple-300">{testimonial.orders}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -348,7 +273,7 @@ export default function Home() {
 
       {/* For New GOMs Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="container mx-auto px-4 text-center">
+        <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
               Always wanted to start your own group orders?
@@ -359,40 +284,42 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Zap className="h-8 w-8 text-blue-600" />
+                  <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
                 </div>
                 <h3 className="font-semibold mb-2">Quick Setup</h3>
                 <p className="text-gray-600">Album templates and step-by-step guides get you started in minutes</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-purple-600" />
+                  <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
                 </div>
                 <h3 className="font-semibold mb-2">Community Support</h3>
                 <p className="text-gray-600">Connect with experienced GOMs who'll help you succeed</p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-r from-pink-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="h-8 w-8 text-pink-600" />
+                  <svg className="h-8 w-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
                 </div>
                 <h3 className="font-semibold mb-2">Risk-Free Start</h3>
                 <p className="text-gray-600">Built-in safety features protect you and your buyers</p>
               </div>
             </div>
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-              onClick={() => router.push("/orders/create")}
-            >
+            <button className="text-lg px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-lg font-medium">
               Start Your First Group Order (It's Free!)
-            </Button>
+            </button>
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
       <section className="bg-gray-900 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
+        <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-6">
             Ready to reclaim your weekends?
           </h2>
@@ -401,21 +328,12 @@ export default function Home() {
             Your fans deserve better, and so do you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              onClick={() => router.push("/browse")}
-            >
+            <button className="text-lg px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium">
               Explore Live Demo
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="text-lg px-8 py-4 border-gray-600 text-white hover:bg-gray-800"
-              onClick={() => router.push("/orders/create")}
-            >
+            </button>
+            <button className="text-lg px-8 py-4 border border-gray-600 text-white hover:bg-gray-800 rounded-lg font-medium">
               Start Your First GO
-            </Button>
+            </button>
           </div>
           <p className="text-sm text-gray-400 mt-6">
             💜 Trusted by K-pop communities across Southeast Asia • No credit card required
@@ -425,7 +343,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-black text-white py-12">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-3 mb-4 md:mb-0">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
@@ -440,11 +358,9 @@ export default function Home() {
               <p className="text-gray-400 text-sm">
                 © 2025 GOMFLOW. Made with 💜 for Southeast Asian GOMs.
               </p>
-              {isDemo && (
-                <p className="text-purple-400 text-xs mt-1">
-                  Demo Mode - All data is simulated for testing
-                </p>
-              )}
+              <p className="text-purple-400 text-xs mt-1">
+                Demo Mode - All data is simulated for testing
+              </p>
             </div>
           </div>
         </div>
