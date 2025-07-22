@@ -1,0 +1,532 @@
+name: GOMFLOW CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  
+jobs:
+  # Job 1: Detect changed services
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      core: ${{ steps.changes.outputs.core }}
+      smart-agent: ${{ steps.changes.outputs.smart-agent }}
+      payments: ${{ steps.changes.outputs.payments }}
+      telegram: ${{ steps.changes.outputs.telegram }}
+      discord: ${{ steps.changes.outputs.discord }}
+      whatsapp: ${{ steps.changes.outputs.whatsapp }}
+      shared: ${{ steps.changes.outputs.shared }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            core:
+              - 'gomflow-core/**'
+            smart-agent:
+              - 'gomflow-smart-agent/**'
+            payments:
+              - 'gomflow-payments/**'
+            telegram:
+              - 'gomflow-telegram/**'
+            discord:
+              - 'gomflow-discord/**'
+            whatsapp:
+              - 'gomflow-whatsapp/**'
+            shared:
+              - 'gomflow-shared/**'
+
+  # Job 2: Build and test shared module (dependency for all services)
+  test-shared:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.shared == 'true' || needs.detect-changes.outputs.core == 'true' || needs.detect-changes.outputs.smart-agent == 'true' || needs.detect-changes.outputs.payments == 'true' || needs.detect-changes.outputs.telegram == 'true' || needs.detect-changes.outputs.discord == 'true' || needs.detect-changes.outputs.whatsapp == 'true'
+    needs: detect-changes
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-shared/package-lock.json'
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-shared
+        run: npm ci
+      
+      - name: Build shared module
+        working-directory: ./gomflow-shared
+        run: npm run build
+      
+      - name: Run tests
+        working-directory: ./gomflow-shared
+        run: npm test
+      
+      - name: Upload shared build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+
+  # Job 3: Test Core API
+  test-core:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.core == 'true' || needs.detect-changes.outputs.shared == 'true'
+    needs: [detect-changes, test-shared]
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-core/package-lock.json'
+      
+      - name: Download shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-core
+        run: npm ci
+      
+      - name: Run linter
+        working-directory: ./gomflow-core
+        run: npm run lint
+      
+      - name: Run type check
+        working-directory: ./gomflow-core
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./gomflow-core
+        run: npm test -- --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gomflow-core/coverage/lcov.info
+          flags: core
+          name: gomflow-core
+
+  # Job 4: Test Smart Agent Service
+  test-smart-agent:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.smart-agent == 'true' || needs.detect-changes.outputs.shared == 'true'
+    needs: [detect-changes, test-shared]
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY_TEST }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-smart-agent/package-lock.json'
+      
+      - name: Install system dependencies for OCR
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-eng tesseract-ocr-fil tesseract-ocr-msa
+      
+      - name: Download shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-smart-agent
+        run: npm ci
+      
+      - name: Run linter
+        working-directory: ./gomflow-smart-agent
+        run: npm run lint
+      
+      - name: Run type check
+        working-directory: ./gomflow-smart-agent
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./gomflow-smart-agent
+        run: npm test -- --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gomflow-smart-agent/coverage/lcov.info
+          flags: smart-agent
+          name: gomflow-smart-agent
+
+  # Job 5: Test Payment Gateway Service
+  test-payments:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.payments == 'true' || needs.detect-changes.outputs.shared == 'true'
+    needs: [detect-changes, test-shared]
+    env:
+      PAYMONGO_SECRET_KEY: ${{ secrets.PAYMONGO_SECRET_KEY_TEST }}
+      BILLPLZ_SECRET_KEY: ${{ secrets.BILLPLZ_SECRET_KEY_TEST }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-payments/package-lock.json'
+      
+      - name: Download shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-payments
+        run: npm ci
+      
+      - name: Run linter
+        working-directory: ./gomflow-payments
+        run: npm run lint
+      
+      - name: Run type check
+        working-directory: ./gomflow-payments
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./gomflow-payments
+        run: npm test -- --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gomflow-payments/coverage/lcov.info
+          flags: payments
+          name: gomflow-payments
+
+  # Job 6: Test Telegram Bot Service
+  test-telegram:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.telegram == 'true' || needs.detect-changes.outputs.shared == 'true'
+    needs: [detect-changes, test-shared]
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN_TEST }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+      REDIS_URL: ${{ secrets.REDIS_URL_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-telegram/package-lock.json'
+      
+      - name: Download shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-telegram
+        run: npm ci
+      
+      - name: Run linter
+        working-directory: ./gomflow-telegram
+        run: npm run lint
+      
+      - name: Run type check
+        working-directory: ./gomflow-telegram
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./gomflow-telegram
+        run: npm test -- --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gomflow-telegram/coverage/lcov.info
+          flags: telegram
+          name: gomflow-telegram
+
+  # Job 7: Test Discord Bot Service
+  test-discord:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.discord == 'true' || needs.detect-changes.outputs.shared == 'true'
+    needs: [detect-changes, test-shared]
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN_TEST }}
+      DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID_TEST }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+      REDIS_URL: ${{ secrets.REDIS_URL_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-discord/package-lock.json'
+      
+      - name: Download shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-discord
+        run: npm ci
+      
+      - name: Run linter
+        working-directory: ./gomflow-discord
+        run: npm run lint
+      
+      - name: Run type check
+        working-directory: ./gomflow-discord
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./gomflow-discord
+        run: npm test -- --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gomflow-discord/coverage/lcov.info
+          flags: discord
+          name: gomflow-discord
+
+  # Job 8: Test WhatsApp Service
+  test-whatsapp:
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.whatsapp == 'true' || needs.detect-changes.outputs.shared == 'true'
+    needs: [detect-changes, test-shared]
+    env:
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID_TEST }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN_TEST }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'gomflow-whatsapp/package-lock.json'
+      
+      - name: Download shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: gomflow-shared-build
+          path: gomflow-shared/dist/
+      
+      - name: Install dependencies
+        working-directory: ./gomflow-whatsapp
+        run: npm ci
+      
+      - name: Run linter
+        working-directory: ./gomflow-whatsapp
+        run: npm run lint
+      
+      - name: Run type check
+        working-directory: ./gomflow-whatsapp
+        run: npm run type-check
+      
+      - name: Run tests
+        working-directory: ./gomflow-whatsapp
+        run: npm test -- --coverage
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./gomflow-whatsapp/coverage/lcov.info
+          flags: whatsapp
+          name: gomflow-whatsapp
+
+  # Job 9: Integration Tests (cross-service communication)
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [test-core, test-smart-agent, test-payments, test-telegram, test-discord, test-whatsapp]
+    if: always() && (needs.test-core.result == 'success' || needs.test-smart-agent.result == 'success' || needs.test-payments.result == 'success' || needs.test-telegram.result == 'success' || needs.test-discord.result == 'success' || needs.test-whatsapp.result == 'success')
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_TEST }}
+      REDIS_URL: ${{ secrets.REDIS_URL_TEST }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Run integration tests
+        run: |
+          # Install dependencies for integration tests
+          npm ci
+          # Run cross-service integration tests
+          npm run test:integration
+      
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: integration-test-results/
+
+  # Job 10: Security Scan
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --all-projects --severity-threshold=high
+      
+      - name: Upload Snyk results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+  # Job 11: Deploy to Staging (develop branch)
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    needs: [integration-tests, security-scan]
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy Core to Vercel Staging
+        if: needs.detect-changes.outputs.core == 'true'
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./gomflow-core
+          scope: staging
+      
+      - name: Deploy Smart Agent to Railway Staging
+        if: needs.detect-changes.outputs.smart-agent == 'true'
+        run: |
+          # Deploy to Railway staging environment
+          curl -f -X POST \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"environment": "staging", "service": "gomflow-smart-agent"}' \
+            https://backboard.railway.app/graphql/v2
+      
+      # Additional Railway deployments for other services...
+      
+      - name: Run smoke tests on staging
+        run: |
+          # Wait for deployments to be ready
+          sleep 60
+          # Run smoke tests against staging environment
+          npm run test:smoke:staging
+
+  # Job 12: Deploy to Production (main branch)
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [integration-tests, security-scan]
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy Core to Vercel Production
+        if: needs.detect-changes.outputs.core == 'true'
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./gomflow-core
+          vercel-args: '--prod'
+      
+      - name: Deploy microservices to Railway Production
+        run: |
+          # Deploy all changed microservices to Railway production
+          if [[ "${{ needs.detect-changes.outputs.smart-agent }}" == "true" ]]; then
+            echo "Deploying Smart Agent to production..."
+            # Railway deployment command for Smart Agent
+          fi
+          
+          if [[ "${{ needs.detect-changes.outputs.payments }}" == "true" ]]; then
+            echo "Deploying Payments service to production..."
+            # Railway deployment command for Payments
+          fi
+          
+          if [[ "${{ needs.detect-changes.outputs.telegram }}" == "true" ]]; then
+            echo "Deploying Telegram bot to production..."
+            # Railway deployment command for Telegram
+          fi
+          
+          if [[ "${{ needs.detect-changes.outputs.discord }}" == "true" ]]; then
+            echo "Deploying Discord bot to production..."
+            # Railway deployment command for Discord
+          fi
+          
+          if [[ "${{ needs.detect-changes.outputs.whatsapp }}" == "true" ]]; then
+            echo "Deploying WhatsApp service to production..."
+            # Railway deployment command for WhatsApp
+          fi
+      
+      - name: Configure webhooks and post-deployment
+        run: |
+          # Set up webhooks for payment gateways
+          # Configure bot webhooks for Telegram/Discord
+          # Run post-deployment verification
+          npm run deploy:configure
+      
+      - name: Run production smoke tests
+        run: |
+          # Wait for all deployments to be ready
+          sleep 120
+          # Run comprehensive smoke tests against production
+          npm run test:smoke:production
+      
+      - name: Notify deployment status
+        if: always()
+        run: |
+          # Send deployment notifications to team
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"GOMFLOW deployment completed: ${{ job.status }}"}' \
+            ${{ secrets.SLACK_WEBHOOK }}

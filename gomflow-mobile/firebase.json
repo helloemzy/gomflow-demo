@@ -1,0 +1,34 @@
+{
+  "project": {
+    "id": "gomflow-mobile",
+    "name": "GOMFLOW Mobile"
+  },
+  "apps": {
+    "android": {
+      "package_name": "com.gomflow.mobile",
+      "sha1_hashes": []
+    },
+    "ios": {
+      "bundle_id": "com.gomflow.mobile"
+    }
+  },
+  "messaging": {
+    "android": {
+      "notification": {
+        "icon": "@drawable/ic_notification",
+        "color": "#6366f1",
+        "sound": "default",
+        "tag": "gomflow_notification"
+      }
+    },
+    "ios": {
+      "notification": {
+        "sound": "default"
+      }
+    }
+  },
+  "analytics": {
+    "enabled": true,
+    "collection_enabled": true
+  }
+}

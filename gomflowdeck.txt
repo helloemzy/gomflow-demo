@@ -1,0 +1,488 @@
+GOMFLOW
+
+AUTOMATING THE MANUAL CHAOS OF
+FAN GROUP ORDERS
+
+#gomflowTRENDING
+
+FOR LAUUNCH
+
+emily@gomflow.com
+
+$42 B in SEA chat-commerce
+runs on spreadsheets.
+K-pop merchandise market reached $13.28 billion globally in 2024
+(Maximize Market Research)
+Southeast Asian fans spend $665-1,422 annually on K-pop
+merchandise (iPrice Group/Rakuten Insight study via Bandwagon
+Asia)
+73% of international fans participate in group orders to reduce
+shipping costs (Notes on K-pop)
+
+THE CURRENT GOM (Group
+Order Managers) ECOSYSTEM
+GOMs manage 50-300 orders per month, earning $300-900
+monthly (LinkedIn - Angel Ramil)
+Indonesian GOMs can earn 3.5x the national average wage
+(KrASIA)
+Manual processes take 15-20 hours per order cycle (EnVi Media)
+
+The problem
+01
+
+02
+
+03
+
+Manual
+Tracking
+
+Payment
+Anxiety
+
+Scale
+Limitations
+
+GOMs spend 15-20 hours per
+order managing payments
+through spreadsheets and
+DMs Source: EnVi Media GOM
+interviews
+
+Current methods: PayPal
+F&F, bank transfers, GCash
+with no buyer protection or
+tracking Source: LinkedIn
+GOM testimonials
+
+Manual processes limit
+GOMs to 50-300 orders
+monthly despite high
+demand Source: LinkedIn Angel Ramil GOM
+experience
+
+And all via spreadsheets & chat channels
+
+The
+Solution
+
+Instant Order
+Forms
+
+Automated
+Buyer Updates
+
+With Integrated Payment
+Tracking
+
+Via WhatsApp / Telegram /
+Discord / SMS
+
+Realtime
+Dashboards
+
+AI assistant
+runs the drop
+
+One-click
+exports
+
+showing Payment Status
+
+Auto-reminders, quota
+tracking, instant refunds if
+target isn’t met.
+
+For Shipping Labels
+
+OLD FLOW
+
+GOMFLOW
+
+20 HOURS OF MANUAL CHAOS
+
+01
+
+Create Google Form (30 min)
+Manual setup for each product
+Basic fields, no validation
+
+02
+
+Share on Social Media (ongoing)
+Post on Twitter, Instagram,
+Facebook
+Constant reminders needed
+
+03
+
+Track Payments Manually (6+
+hours)
+Match payment screenshots
+Excel spreadsheet juggling
+
+04
+
+Send Payment Reminders (2+
+hours)
+DM each unpaid buyer
+Multiple follow-ups needed
+
+05
+Result:
+
+Update Buyers Individually (4+ hours)
+Copy-paste messages
+WhatsApp/DM each person
+Handle questions repeatedly
+
+😫 Stressed GOM, lost orders, payment confusion
+
+10 MINUTES TO SUCCESS
+
+01
+
+Create Smart Order Form (2 min)
+Beautiful templates
+Automatic payment integration
+Multi-currency support
+
+02
+
+Share Once (instant)
+Unique trackable link
+Auto-posts to X bot
+Built-in viral features
+
+03
+
+Payments Track Themselves (0 min)
+Real-time payment status
+Automatic confirmations
+Instant dashboard updates
+
+04
+
+Automated Reminders (0 min)
+System sends payment nudges
+Smart timing based on deadlines
+
+05
+Result:
+
+One-Click Updates (30 sec)
+Bulk WhatsApp notifications
+Status updates for all buyers
+Auto-FAQ responses
+
+🚀 Happy GOM, more orders, professional operation
+
+Target User
+
+(first targeting kpop & anime fans)
+
+GOM
+(Group Order Manager)
+Currently spends 15-20 hours per
+order managing payments
+manually through spreadsheets.
+Loses 30% of potential orders due
+to payment chaos. Needs
+automated tracking, instant buyer
+updates, and professional tools to
+scale their business.
+
+Microsellers
+/Creators
+
+Buyers / Fans
+
+Launches exclusive merchandise
+drops but struggles with order
+management. Needs pre-order
+capabilities, inventory tracking, and
+real-time demand data. Wants to
+focus on creating, not spreadsheet
+juggling.
+
+Anxious about payment security and
+order status. Constantly DMs GOMs
+asking "did you get my payment?" Wants
+transparency, real-time updates, and to
+discover trending group orders before
+they close.
+
+Competitive Analysis
+Problem They Solve
+
+Where They Fall Short
+
+GOMFLOW Advantage
+
+Free form creation & basic
+data collection
+
+Manual payment tracking, no
+automation, 15-20 hours per order cycle,
+zero payment integration
+
+Automated payment tracking +
+WhatsApp updates + one-click exports.
+20 hours
+10 minutes
+
+Typeform / Jotform
+
+Beautiful forms with
+payment integration
+
+Not designed for group orders, no order
+tracking, expensive at $39-99/month, no
+fan-specific features
+
+Built specifically for GOMs at $925/month, includes ranking system +
+viral X bot
+
+Proxy Services
+(Neokyo, Buyee)
+
+Handle international
+shipping & payments
+
+Take 5-10% commission, no tools for
+GOMs, focused on individual orders not
+groups
+
+Flat monthly fee, GOM keeps all profits,
+built for group dynamics
+
+WhatsApp Business
++ Spreadsheets
+
+Direct communication with
+buyers, free to use
+
+No payment integration, manual
+everything, no analytics, scaling
+nightmare beyond 50 orders
+
+Integrated workflow, automated
+reminders, Fan Intelligence data,
+unlimited scaling
+
+Google Forms +
+Manual Tracking
+
+→
+
+Fan Intelligence: The
+Viral Growth Engine
+The Data Flywheel
+
+gomflow
+
+→
+
+GOMs create orders
+Realtime data
+X Bot broadcasts trends
+Fans discover orders
+More GOMs join
+Better
+intelligence
+
+→
+
+→
+→
+
+BRAND
+Real Purchase Data
+Geographic Insights
+Additional Rev for
+GOMFLOW
+
+→
+
+@gomflowbot
+
+GROUP ORDER RANKINGS JULY 2025
+1. BEAUTIFUL STRANGERS - TXT
+2. GO BACK TO THE FUTURE - NCT DREAM
+3. JAPAN 3RD ALBUM - IVE
+
+FANS
+Never Miss Hot Group Orders
+Price Comparison Tool
+Trending Merch Alert
+See Rankings of their favorite
+groups and members
+
+GOMS
+Free viral marketing
+Ranking = Credibility
+Demand Forecasting
+
+01
+
+TAM - US $13.3B
+
+02
+
+SAM - US $400-800M
+
+03
+
+SOM - US $3.6M ARR
+
+Global K-pop merchandise market The
+verified market size for K-pop merchandise
+reached $13.28B in 2024, growing at 15%
+annually across albums, fashion, and
+collectibles. - Source: Maximize Market
+Research -
+
+Southeast Asian group order market (estimated)
+73% of international fans use group orders (verified)
+SEA fans spend $665-1,422/year on merchandise
+(verified)
+Estimate: 5-10% of total merchandise flows through
+group orders
+
+Conservative Year 1 target
+Target: 1,000 paying GOMs
+Average revenue: $300/year ($25/month)
+Represents <1% of estimated SAM
+Based on verified GOM earnings of $300-900/month
+
+Business
+Model
+
+FREEMIUM FOUNDATION
+Free Tier up to 50 orders /
+month
+Build trust and usage data. "Powered by GOMFLOW" on forms
+drives viral growth and brand awareness.
+
+01
+
+Revenue Mix Target
+YEAR 1:
+70% SAAS Subscriptions
+20% Premium Features
+10% Data / API Access
+
+02
+
+Unit Economics:
+CAC: $15-20
+(influencer
+partnerships)
+LTV: $300+ (20-month
+retention)
+Gross Margin: 85%
+
+03
+04
+
+SAAS Subscription Tiers
+$9-25/month based on
+features
+Starter: $9-12/month (200 orders)
+Professional: $19-25/month (unlimited)
+Regional pricing for Southeast Asia
+
+Fan Intelligence Platform
+B2B data subscriptions $5002K/month
+Real-time merchandise demand data for brands,
+labels, and e-commerce platforms. Only platform
+with actual transaction data.
+
+Premium Addons/ Usage based
+features
+
+Adjacent Segments Sharing the Same
+Pain
+
+01
+
+02
+03
+04
+
+Anime Figure Collectors
+
+Anime fans extensively use group orders for figures, especially
+limited editions from Japan. Forums like MyFigureCollection and
+Reddit r/AnimeFigures show similar group buying behavior to Kpop. Japanese exclusive releases drive this need.
+
+Mechanical-keyboard artisans
+KeebFinder lists 236 active group buys for keycaps/keyboard
+kits at any given time. Buyers pre-pay to hit MOQ before
+production starts.
+
+Sneaker cook groups
+
+GQ’s feature “Buying Rare Sneakers Is Almost Impossible—Unless
+You Join a Cook Group” profiles Discord groups coordinating Travis
+Scott Nike drops for thousands of paying members.
+
+Pokémon / TCG case breaks
+
+CardShopLive runs nightly Pokémon box breaks where 11-12
+buyers pre-purchase slots before the sealed box is opened
+live, then shipped.
+
+Future Roadmap
+
+What are your next steps and goals? How much support do you need
+from investors and what will it get you?
+
+Prototype
+BASIC ORDER FORM
+BUILDER
+PAYMENT TRACKING
+DASHBOARD
+WHATSAPP
+INTEGRATION
+50 BETA GOMS
+TESTING
+
+Launch
+Q1 2026 🚀 MARKET
+
+ENTRY
+PHILIPPINES
+LAUNCH
+X BOT GOES LIVE
+FIRST 200 PAID
+USERS
+$2.5K MRR
+TARGE
+
+V2.0
+Q2 2026 📊 Fan
+
+Intelligence
+Live trending dashboard
+GOM rankings
+SEA expansion (TH, ID)
+$15K MRR target
+
+V2.2
+5-country presence
+B2B data API
+Inventory
+management
+$50K MRR target
+
+Thank You
+#GOMFLOW
+
+GOMFLOW
+
+Emily Ho
+
+emily@gomflow.com
+
+

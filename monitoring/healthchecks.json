@@ -1,0 +1,320 @@
+{
+  "healthchecks": {
+    "production": {
+      "gomflow-core": {
+        "url": "https://gomflow.com/api/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": false
+        }
+      },
+      "gomflow-smart-agent": {
+        "url": "https://gomflow-smart-agent.railway.app/api/health",
+        "interval": 30,
+        "timeout": 15,
+        "retries": 3,
+        "expected_status": 200,
+        "critical": true,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": true
+        }
+      },
+      "gomflow-payments": {
+        "url": "https://gomflow-payments.railway.app/api/health",
+        "interval": 15,
+        "timeout": 10,
+        "retries": 3,
+        "expected_status": 200,
+        "critical": true,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": true
+        }
+      },
+      "gomflow-telegram": {
+        "url": "https://gomflow-telegram.railway.app/api/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": false
+        }
+      },
+      "gomflow-discord": {
+        "url": "https://gomflow-discord.railway.app/api/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": false
+        }
+      },
+      "gomflow-whatsapp": {
+        "url": "https://gomflow-whatsapp.railway.app/api/health",
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": false
+        }
+      }
+    },
+    "staging": {
+      "gomflow-core": {
+        "url": "https://gomflow-staging.vercel.app/api/health",
+        "interval": 60,
+        "timeout": 10,
+        "retries": 2,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": false,
+          "sms": false
+        }
+      },
+      "gomflow-smart-agent": {
+        "url": "https://gomflow-smart-agent-staging.railway.app/api/health",
+        "interval": 60,
+        "timeout": 15,
+        "retries": 2,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": false,
+          "sms": false
+        }
+      },
+      "gomflow-payments": {
+        "url": "https://gomflow-payments-staging.railway.app/api/health",
+        "interval": 60,
+        "timeout": 10,
+        "retries": 2,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": false,
+          "sms": false
+        }
+      },
+      "gomflow-telegram": {
+        "url": "https://gomflow-telegram-staging.railway.app/api/health",
+        "interval": 60,
+        "timeout": 10,
+        "retries": 2,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": false,
+          "sms": false
+        }
+      },
+      "gomflow-discord": {
+        "url": "https://gomflow-discord-staging.railway.app/api/health",
+        "interval": 60,
+        "timeout": 10,
+        "retries": 2,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": false,
+          "sms": false
+        }
+      },
+      "gomflow-whatsapp": {
+        "url": "https://gomflow-whatsapp-staging.railway.app/api/health",
+        "interval": 60,
+        "timeout": 10,
+        "retries": 2,
+        "expected_status": 200,
+        "alerts": {
+          "slack": true,
+          "email": false,
+          "sms": false
+        }
+      }
+    }
+  },
+  "synthetic_tests": {
+    "production": {
+      "end_to_end_order_flow": {
+        "description": "Complete order creation and submission flow",
+        "steps": [
+          {
+            "name": "Create order",
+            "method": "POST",
+            "url": "https://gomflow.com/api/orders",
+            "headers": {
+              "Authorization": "Bearer {{ TEST_TOKEN }}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "title": "E2E Test Order",
+              "description": "Automated test order",
+              "deadline": "{{ FUTURE_DATE }}",
+              "quota": 10
+            },
+            "assertions": [
+              "response.status == 201",
+              "response.body.success == true",
+              "response.body.data.slug != null"
+            ]
+          },
+          {
+            "name": "Submit to order",
+            "method": "POST",
+            "url": "https://gomflow.com/api/submissions",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "order_id": "{{ PREVIOUS_RESPONSE.data.id }}",
+              "buyer_name": "Test Buyer",
+              "buyer_phone": "+639123456789",
+              "quantity": 1
+            },
+            "assertions": [
+              "response.status == 201",
+              "response.body.success == true",
+              "response.body.data.payment_reference != null"
+            ]
+          }
+        ],
+        "interval": 300,
+        "timeout": 60,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": true
+        }
+      },
+      "payment_processing_flow": {
+        "description": "Smart Agent payment processing test",
+        "steps": [
+          {
+            "name": "Upload payment screenshot",
+            "method": "POST",
+            "url": "https://gomflow-smart-agent.railway.app/api/process",
+            "headers": {
+              "x-gomflow-auth": "{{ INTERNAL_SERVICE_KEY }}"
+            },
+            "files": {
+              "screenshot": "test-payment-screenshot.jpg"
+            },
+            "assertions": [
+              "response.status == 200",
+              "response.body.success == true",
+              "response.body.data.confidence >= 0"
+            ]
+          }
+        ],
+        "interval": 600,
+        "timeout": 120,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": true
+        }
+      }
+    }
+  },
+  "performance_tests": {
+    "production": {
+      "api_response_time": {
+        "endpoints": [
+          {
+            "url": "https://gomflow.com/api/orders",
+            "method": "GET",
+            "max_response_time": 500
+          },
+          {
+            "url": "https://gomflow.com/api/dashboard",
+            "method": "GET",
+            "max_response_time": 1000
+          },
+          {
+            "url": "https://gomflow-smart-agent.railway.app/api/stats",
+            "method": "GET",
+            "max_response_time": 2000
+          }
+        ],
+        "interval": 300,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": false
+        }
+      },
+      "concurrent_users": {
+        "target_url": "https://gomflow.com",
+        "virtual_users": 50,
+        "duration": 300,
+        "ramp_up": 60,
+        "acceptable_error_rate": 5,
+        "max_response_time": 2000,
+        "interval": 3600,
+        "alerts": {
+          "slack": true,
+          "email": true,
+          "sms": false
+        }
+      }
+    }
+  },
+  "alerting": {
+    "channels": {
+      "slack": {
+        "webhook_url": "{{ SLACK_WEBHOOK_URL }}",
+        "channel": "#gomflow-alerts",
+        "username": "GOMFLOW Monitor"
+      },
+      "email": {
+        "smtp_server": "{{ SMTP_SERVER }}",
+        "from": "alerts@gomflow.com",
+        "to": ["dev@gomflow.com", "ops@gomflow.com"]
+      },
+      "sms": {
+        "provider": "twilio",
+        "account_sid": "{{ TWILIO_ACCOUNT_SID }}",
+        "auth_token": "{{ TWILIO_AUTH_TOKEN }}",
+        "from": "{{ TWILIO_PHONE_NUMBER }}",
+        "to": ["{{ EMERGENCY_PHONE_NUMBER }}"]
+      }
+    },
+    "escalation": {
+      "levels": [
+        {
+          "level": 1,
+          "delay": 0,
+          "channels": ["slack"]
+        },
+        {
+          "level": 2,
+          "delay": 300,
+          "channels": ["slack", "email"]
+        },
+        {
+          "level": 3,
+          "delay": 900,
+          "channels": ["slack", "email", "sms"]
+        }
+      ]
+    }
+  }
+}
