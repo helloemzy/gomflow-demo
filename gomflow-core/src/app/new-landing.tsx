@@ -18,7 +18,7 @@ import {
   Star
 } from "lucide-react";
 
-export default function Home() {
+export default function NewLandingPage() {
   const router = useRouter();
   const supabase = createClientComponentClient();
   const [isDemo, setIsDemo] = useState(false);
