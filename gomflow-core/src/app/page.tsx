@@ -194,6 +194,7 @@ export default function Home() {
             <p className="text-sm text-gray-500 mt-4">
               ✨ Free to try • No credit card needed • Used by 500+ GOMs
             </p>
+            {/* Force deployment refresh */}
           </div>
           
           <div className="relative">
