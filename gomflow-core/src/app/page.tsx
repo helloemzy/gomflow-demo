@@ -143,6 +143,13 @@ export default function Home() {
               )}
               <Button 
                 variant="ghost" 
+                onClick={() => router.push("/pricing")}
+                className="text-purple-600 hover:text-purple-700"
+              >
+                Pricing
+              </Button>
+              <Button 
+                variant="ghost" 
                 onClick={() => router.push("/auth/login")}
                 className="text-purple-600 hover:text-purple-700"
               >
@@ -186,13 +193,13 @@ export default function Home() {
                 size="lg" 
                 variant="outline" 
                 className="text-lg px-8 py-4 border-purple-300 text-purple-600 hover:bg-purple-50"
-                onClick={() => router.push("/orders/create")}
+                onClick={() => router.push("/pricing")}
               >
-                Start Your First GO
+                View Pricing Plans
               </Button>
             </div>
             <p className="text-sm text-gray-500 mt-4">
-              ✨ Free to try • No credit card needed • Used by 500+ GOMs
+              ✨ Free tier available • 14-day trial • Plans from $9/month
             </p>
             {/* Force deployment refresh */}
           </div>
