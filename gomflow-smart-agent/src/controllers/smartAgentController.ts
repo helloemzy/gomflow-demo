@@ -3,6 +3,7 @@ import multer from 'multer'
 import { z } from 'zod'
 import PaymentProcessor from '@/processors/paymentProcessor'
 import DatabaseService from '@/services/databaseService'
+import PaymentAnalysisService from '@/services/paymentAnalysis'
 import { Config } from '@/config'
 import { logger } from '@/utils/logger'
 import { 
@@ -31,6 +32,7 @@ const upload = multer({
 
 const paymentProcessor = new PaymentProcessor()
 const databaseService = new DatabaseService()
+const paymentAnalysisService = new PaymentAnalysisService()
 
 export class SmartAgentController {
   /**
@@ -160,6 +162,206 @@ export class SmartAgentController {
       res.status(500).json<SmartAgentResponse>({
         success: false,
         error: 'Processing failed',
+        message: error.message
+      })
+    }
+  }
+
+  /**
+   * Analyze payment proof for manual verification system
+   */
+  async analyzePaymentProof(req: Request, res: Response) {
+    try {
+      const { payment_proof_id, file_url, analysis_type, context } = req.body
+
+      if (!payment_proof_id || !file_url) {
+        return res.status(400).json<SmartAgentResponse>({
+          success: false,
+          error: 'Payment proof ID and file URL are required'
+        })
+      }
+
+      logger.info('Starting payment proof analysis', {
+        paymentProofId: payment_proof_id,
+        analysisType: analysis_type || 'payment_verification'
+      })
+
+      const startTime = Date.now()
+      
+      const analysisResult = await paymentAnalysisService.analyzePaymentProof({
+        payment_proof_id,
+        file_url,
+        analysis_type: analysis_type || 'payment_verification',
+        context
+      })
+
+      const processingTime = Date.now() - startTime
+
+      logger.info('Payment proof analysis completed', {
+        paymentProofId: payment_proof_id,
+        verificationStatus: analysisResult.verification_status,
+        confidence: analysisResult.confidence_score,
+        processingTimeMs: processingTime
+      })
+
+      res.json<SmartAgentResponse>({
+        success: true,
+        data: analysisResult,
+        message: analysisResult.verification_status === 'approved' 
+          ? 'Payment auto-approved based on high confidence analysis'
+          : analysisResult.requires_manual_review
+            ? 'Payment requires manual review'
+            : 'Payment analysis completed',
+        processingTime
+      })
+
+    } catch (error: any) {
+      logger.error('Payment proof analysis failed', {
+        error: error.message,
+        body: req.body
+      })
+
+      res.status(500).json<SmartAgentResponse>({
+        success: false,
+        error: 'Payment proof analysis failed',
+        message: error.message
+      })
+    }
+  }
+
+  /**
+   * Batch analyze multiple payment proofs
+   */
+  async batchAnalyzePaymentProofs(req: Request, res: Response) {
+    try {
+      const { requests } = req.body
+
+      if (!Array.isArray(requests) || requests.length === 0) {
+        return res.status(400).json<SmartAgentResponse>({
+          success: false,
+          error: 'Array of analysis requests is required'
+        })
+      }
+
+      logger.info('Starting batch payment proof analysis', {
+        batchSize: requests.length
+      })
+
+      const startTime = Date.now()
+      
+      const results = await paymentAnalysisService.batchAnalyzePaymentProofs(requests)
+      
+      const processingTime = Date.now() - startTime
+      const successful = results.filter(r => !r.error).length
+      const failed = results.filter(r => r.error).length
+
+      logger.info('Batch payment proof analysis completed', {
+        totalProcessed: results.length,
+        successful,
+        failed,
+        processingTimeMs: processingTime
+      })
+
+      res.json<SmartAgentResponse>({
+        success: true,
+        data: {
+          results,
+          summary: {
+            total_processed: results.length,
+            successful,
+            failed,
+            auto_approved: results.filter(r => r.verification_status === 'approved').length,
+            requires_review: results.filter(r => r.requires_manual_review).length
+          }
+        },
+        message: `Batch analysis completed: ${successful} successful, ${failed} failed`,
+        processingTime
+      })
+
+    } catch (error: any) {
+      logger.error('Batch payment proof analysis failed', {
+        error: error.message,
+        body: req.body
+      })
+
+      res.status(500).json<SmartAgentResponse>({
+        success: false,
+        error: 'Batch payment proof analysis failed',
+        message: error.message
+      })
+    }
+  }
+
+  /**
+   * Get analysis statistics for a user or orders
+   */
+  async getAnalysisStats(req: Request, res: Response) {
+    try {
+      const { user_id, order_ids } = req.query
+      
+      const stats = await paymentAnalysisService.getAnalysisStats(
+        user_id as string,
+        order_ids ? (order_ids as string).split(',') : undefined
+      )
+
+      res.json<SmartAgentResponse>({
+        success: true,
+        data: stats
+      })
+
+    } catch (error: any) {
+      logger.error('Failed to get analysis stats', {
+        error: error.message,
+        query: req.query
+      })
+
+      res.status(500).json<SmartAgentResponse>({
+        success: false,
+        error: 'Failed to get analysis statistics',
+        message: error.message
+      })
+    }
+  }
+
+  /**
+   * Reprocess failed analyses
+   */
+  async reprocessFailedAnalyses(req: Request, res: Response) {
+    try {
+      const { user_id, limit = 10 } = req.body
+
+      if (!user_id) {
+        return res.status(400).json<SmartAgentResponse>({
+          success: false,
+          error: 'User ID is required'
+        })
+      }
+
+      logger.info('Starting failed analysis reprocessing', {
+        userId: user_id,
+        limit
+      })
+
+      const results = await paymentAnalysisService.reprocessFailedAnalyses(user_id, limit)
+
+      res.json<SmartAgentResponse>({
+        success: true,
+        data: {
+          results,
+          reprocessed_count: results.length
+        },
+        message: `Reprocessed ${results.length} failed analyses`
+      })
+
+    } catch (error: any) {
+      logger.error('Failed analysis reprocessing failed', {
+        error: error.message,
+        body: req.body
+      })
+
+      res.status(500).json<SmartAgentResponse>({
+        success: false,
+        error: 'Failed to reprocess analyses',
         message: error.message
       })
     }

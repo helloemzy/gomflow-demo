@@ -103,6 +103,47 @@ export class NotificationService {
       variables: ['orderTitle', 'orderId', 'buyerName', 'amount', 'currency', 'paymentReference', 'quantity', 'orderUrl']
     });
 
+    // Payment Verification Templates
+    this.templates.set('payment_proof_uploaded_websocket', {
+      type: NotificationEventType.SUBMISSION_PAYMENT_REQUIRED,
+      channel: NotificationChannel.WEBSOCKET,
+      title: 'New Payment Proof Uploaded',
+      message: '{{buyerName}} uploaded payment proof for "{{orderTitle}}"',
+      variables: ['orderTitle', 'orderId', 'buyerName', 'amount', 'currency']
+    });
+
+    this.templates.set('payment_verification_approved_websocket', {
+      type: NotificationEventType.SUBMISSION_PAYMENT_CONFIRMED,
+      channel: NotificationChannel.WEBSOCKET,
+      title: 'Payment Approved ✅',
+      message: 'Your payment for "{{orderTitle}}" has been approved',
+      variables: ['orderTitle', 'orderId', 'amount', 'currency']
+    });
+
+    this.templates.set('payment_verification_rejected_websocket', {
+      type: NotificationEventType.SUBMISSION_PAYMENT_REJECTED,
+      channel: NotificationChannel.WEBSOCKET,
+      title: 'Payment Needs Review ⚠️',
+      message: 'Your payment for "{{orderTitle}}" needs review: {{reason}}',
+      variables: ['orderTitle', 'orderId', 'reason']
+    });
+
+    this.templates.set('payment_verification_approved_push', {
+      type: NotificationEventType.SUBMISSION_PAYMENT_CONFIRMED,
+      channel: NotificationChannel.PUSH,
+      title: 'Payment Approved ✅',
+      message: 'Your payment for "{{orderTitle}}" has been approved',
+      variables: ['orderTitle', 'orderId']
+    });
+
+    this.templates.set('payment_verification_rejected_push', {
+      type: NotificationEventType.SUBMISSION_PAYMENT_REJECTED,
+      channel: NotificationChannel.PUSH,
+      title: 'Payment Needs Review ⚠️',
+      message: 'Your payment for "{{orderTitle}}" needs review',
+      variables: ['orderTitle', 'orderId']
+    });
+
     logger.info('Notification templates initialized', { 
       templateCount: this.templates.size 
     });
@@ -494,6 +535,189 @@ export class NotificationService {
     };
 
     await this.sendNotification(notification);
+  }
+
+  // Payment Verification Notification Methods
+  
+  public async notifyPaymentProofUploaded(
+    gomUserId: string,
+    orderId: string,
+    orderTitle: string,
+    buyerName: string,
+    amount: number,
+    currency: string,
+    paymentProofId: string
+  ): Promise<void> {
+    const notification: NotificationEvent = {
+      id: uuidv4(),
+      type: NotificationEventType.SUBMISSION_PAYMENT_REQUIRED,
+      userId: gomUserId,
+      title: 'New Payment Proof Uploaded',
+      message: `${buyerName} uploaded payment proof for "${orderTitle}"`,
+      data: { 
+        orderId, 
+        orderTitle, 
+        buyerName,
+        amount, 
+        currency,
+        paymentProofId,
+        verificationUrl: `/orders/${orderId}/verify`,
+        orderUrl: `/orders/${orderId}`
+      },
+      channels: [NotificationChannel.WEBSOCKET, NotificationChannel.PUSH],
+      priority: NotificationPriority.HIGH,
+      createdAt: new Date()
+    };
+
+    await this.sendNotification(notification);
+  }
+
+  public async notifyPaymentVerificationApproved(
+    buyerPhone: string,
+    orderId: string,
+    orderTitle: string,
+    amount: number,
+    currency: string,
+    paymentReference: string
+  ): Promise<void> {
+    // Since we only have phone number, we'll send via external channels
+    // This would typically integrate with WhatsApp, Telegram, or SMS services
+    
+    const message = `✅ Payment Approved!\n\nYour payment for "${orderTitle}" has been approved.\n\nAmount: ${currency} ${amount}\nReference: ${paymentReference}\n\nThank you for using GOMFLOW!`;
+    
+    // Send via external messaging services
+    await this.sendExternalMessage(buyerPhone, 'payment_approved', {
+      title: 'Payment Approved ✅',
+      message,
+      orderTitle,
+      orderId,
+      amount,
+      currency,
+      paymentReference
+    });
+
+    logger.info('Payment approval notification sent', {
+      buyerPhone,
+      orderId,
+      orderTitle,
+      amount
+    });
+  }
+
+  public async notifyPaymentVerificationRejected(
+    buyerPhone: string,
+    orderId: string,
+    orderTitle: string,
+    reason: string
+  ): Promise<void> {
+    const message = `⚠️ Payment Needs Review\n\nYour payment for "${orderTitle}" needs review.\n\nReason: ${reason}\n\nPlease contact the order organizer for assistance.`;
+    
+    // Send via external messaging services
+    await this.sendExternalMessage(buyerPhone, 'payment_rejected', {
+      title: 'Payment Needs Review ⚠️',
+      message,
+      orderTitle,
+      orderId,
+      reason
+    });
+
+    logger.info('Payment rejection notification sent', {
+      buyerPhone,
+      orderId,
+      orderTitle,
+      reason
+    });
+  }
+
+  public async notifyBulkVerificationCompleted(
+    gomUserId: string,
+    jobId: string,
+    action: 'approved' | 'rejected',
+    totalProofs: number,
+    successfulProofs: number,
+    failedProofs: number
+  ): Promise<void> {
+    const notification: NotificationEvent = {
+      id: uuidv4(),
+      type: NotificationEventType.SUBMISSION_PAYMENT_CONFIRMED,
+      userId: gomUserId,
+      title: `Bulk ${action === 'approved' ? 'Approval' : 'Rejection'} Completed`,
+      message: `${successfulProofs}/${totalProofs} payments ${action} successfully${failedProofs > 0 ? ` (${failedProofs} failed)` : ''}`,
+      data: { 
+        jobId,
+        action,
+        totalProofs,
+        successfulProofs,
+        failedProofs,
+        verificationUrl: '/dashboard/verify'
+      },
+      channels: [NotificationChannel.WEBSOCKET],
+      priority: NotificationPriority.NORMAL,
+      createdAt: new Date()
+    };
+
+    await this.sendNotification(notification);
+  }
+
+  public async notifyAutoVerificationCompleted(
+    gomUserId: string,
+    autoApprovedCount: number,
+    flaggedCount: number
+  ): Promise<void> {
+    if (autoApprovedCount === 0 && flaggedCount === 0) {
+      return; // No need to notify if nothing happened
+    }
+
+    const notification: NotificationEvent = {
+      id: uuidv4(),
+      type: NotificationEventType.SUBMISSION_PAYMENT_CONFIRMED,
+      userId: gomUserId,
+      title: 'Auto-Verification Completed',
+      message: `${autoApprovedCount} payments auto-approved${flaggedCount > 0 ? `, ${flaggedCount} flagged for review` : ''}`,
+      data: { 
+        autoApprovedCount,
+        flaggedCount,
+        verificationUrl: '/dashboard/verify'
+      },
+      channels: [NotificationChannel.WEBSOCKET],
+      priority: NotificationPriority.LOW,
+      createdAt: new Date()
+    };
+
+    await this.sendNotification(notification);
+  }
+
+  private async sendExternalMessage(
+    phone: string,
+    messageType: string,
+    data: Record<string, any>
+  ): Promise<void> {
+    try {
+      // This would integrate with your messaging services
+      // For now, we'll just log the intent
+      logger.info('External message to be sent', {
+        phone,
+        messageType,
+        data
+      });
+
+      // TODO: Integrate with WhatsApp Business API, Telegram Bot, or SMS service
+      // Example for WhatsApp:
+      // await this.whatsappService.sendMessage(phone, data.message);
+      
+      // Example for Telegram:
+      // await this.telegramService.sendMessage(phone, data.message);
+      
+      // Example for SMS:
+      // await this.smsService.sendMessage(phone, data.message);
+      
+    } catch (error) {
+      logger.error('Failed to send external message', {
+        phone,
+        messageType,
+        error
+      });
+    }
   }
 
   public async getNotificationStats(): Promise<NotificationStats> {

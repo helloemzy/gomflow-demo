@@ -68,6 +68,141 @@ const updatePreferencesSchema = z.object({
   }).optional()
 });
 
+// Payment verification notification endpoints
+router.post('/payment-proof-uploaded', authenticateToken, async (req, res) => {
+  try {
+    const { gomUserId, orderId, orderTitle, buyerName, amount, currency, paymentProofId } = req.body;
+    
+    if (!gomUserId || !orderId || !orderTitle || !buyerName || !amount || !currency || !paymentProofId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const notificationService = req.app.locals.notificationService;
+    await notificationService.notifyPaymentProofUploaded(
+      gomUserId,
+      orderId,
+      orderTitle,
+      buyerName,
+      amount,
+      currency,
+      paymentProofId
+    );
+
+    res.json({ success: true, message: 'Payment proof upload notification sent' });
+
+  } catch (error) {
+    logger.error('Failed to send payment proof upload notification', { error, body: req.body });
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+router.post('/payment-verified', authenticateToken, async (req, res) => {
+  try {
+    const { 
+      buyerPhone, 
+      orderId, 
+      orderTitle, 
+      status, // 'approved' or 'rejected'
+      amount, 
+      currency, 
+      paymentReference,
+      reason 
+    } = req.body;
+    
+    if (!buyerPhone || !orderId || !orderTitle || !status) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const notificationService = req.app.locals.notificationService;
+    
+    if (status === 'approved') {
+      if (!amount || !currency || !paymentReference) {
+        return res.status(400).json({ error: 'Amount, currency, and payment reference required for approval' });
+      }
+      
+      await notificationService.notifyPaymentVerificationApproved(
+        buyerPhone,
+        orderId,
+        orderTitle,
+        amount,
+        currency,
+        paymentReference
+      );
+    } else if (status === 'rejected') {
+      await notificationService.notifyPaymentVerificationRejected(
+        buyerPhone,
+        orderId,
+        orderTitle,
+        reason || 'Please contact the organizer for more information'
+      );
+    } else {
+      return res.status(400).json({ error: 'Status must be "approved" or "rejected"' });
+    }
+
+    res.json({ success: true, message: `Payment verification ${status} notification sent` });
+
+  } catch (error) {
+    logger.error('Failed to send payment verification notification', { error, body: req.body });
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+router.post('/bulk-verification-completed', authenticateToken, async (req, res) => {
+  try {
+    const { 
+      gomUserId, 
+      jobId, 
+      action, // 'approved' or 'rejected'
+      totalProofs, 
+      successfulProofs, 
+      failedProofs 
+    } = req.body;
+    
+    if (!gomUserId || !jobId || !action || typeof totalProofs !== 'number' || typeof successfulProofs !== 'number' || typeof failedProofs !== 'number') {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const notificationService = req.app.locals.notificationService;
+    await notificationService.notifyBulkVerificationCompleted(
+      gomUserId,
+      jobId,
+      action,
+      totalProofs,
+      successfulProofs,
+      failedProofs
+    );
+
+    res.json({ success: true, message: 'Bulk verification completion notification sent' });
+
+  } catch (error) {
+    logger.error('Failed to send bulk verification notification', { error, body: req.body });
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+router.post('/auto-verification-completed', authenticateToken, async (req, res) => {
+  try {
+    const { gomUserId, autoApprovedCount, flaggedCount } = req.body;
+    
+    if (!gomUserId || typeof autoApprovedCount !== 'number' || typeof flaggedCount !== 'number') {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const notificationService = req.app.locals.notificationService;
+    await notificationService.notifyAutoVerificationCompleted(
+      gomUserId,
+      autoApprovedCount,
+      flaggedCount
+    );
+
+    res.json({ success: true, message: 'Auto-verification completion notification sent' });
+
+  } catch (error) {
+    logger.error('Failed to send auto-verification notification', { error, body: req.body });
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
 // Send notification (for internal services)
 router.post('/send', authenticateToken, async (req, res) => {
   try {

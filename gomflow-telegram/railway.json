@@ -5,12 +5,14 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "numReplicas": 1,
+    "numReplicas": 2,
     "restartPolicyType": "ON_FAILURE",
     "sleepApplication": false,
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 300,
-    "startCommand": "npm run start:prod"
+    "startCommand": "npm run start:prod",
+    "memoryLimit": 1024,
+    "cpuLimit": 1000
   },
   "environments": {
     "production": {
@@ -25,5 +27,11 @@
         "PORT": "3000"
       }
     }
-  }
+  },
+  "plugins": [
+    {
+      "name": "redis",
+      "plan": "starter"
+    }
+  ]
 }

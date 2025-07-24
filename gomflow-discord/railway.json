@@ -9,20 +9,10 @@
     "restartPolicyType": "ON_FAILURE",
     "sleepApplication": false,
     "healthcheckPath": "/api/health",
-    "healthcheckTimeout": 30,
-    "healthcheckInterval": 10,
+    "healthcheckTimeout": 300,
     "startCommand": "npm run start:prod",
-    "resources": {
-      "memoryLimit": "1GB",
-      "cpuLimit": "1000m"
-    },
-    "autoscaling": {
-      "enabled": true,
-      "minReplicas": 1,
-      "maxReplicas": 5,
-      "targetCPUUtilization": 70,
-      "targetMemoryUtilization": 80
-    }
+    "memoryLimit": 1024,
+    "cpuLimit": 1000
   },
   "environments": {
     "production": {
@@ -37,5 +27,11 @@
         "PORT": "3000"
       }
     }
-  }
+  },
+  "plugins": [
+    {
+      "name": "redis",
+      "plan": "starter"
+    }
+  ]
 }
