@@ -7,6 +7,8 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PaymentMethodSelector } from "@/components/payments/PaymentMethodSelector";
+import { PaymentProofUpload } from "@/components/payments/PaymentProofUpload";
 import { 
   ArrowLeft,
   Copy,
@@ -25,11 +27,13 @@ export default function PaymentPage() {
   const [order, setOrder] = useState<any>(null);
   const [submission, setSubmission] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [paymentSent, setPaymentSent] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<'method' | 'upload' | 'instructions'>('method');
   
   const router = useRouter();
   const params = useParams();
@@ -86,29 +90,22 @@ export default function PaymentPage() {
     // Could add a toast notification here
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please upload an image file');
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('File size must be less than 5MB');
-        return;
-      }
-      
-      setUploadedFile(file);
-      setError('');
+  const handleFilesChange = (files: any[]) => {
+    setUploadedFiles(files);
+    setError('');
+  };
+
+  const handlePaymentMethodSelect = (methodId: string) => {
+    setSelectedPaymentMethod(methodId);
+    // Update submission with selected payment method
+    if (submission) {
+      setSubmission(prev => ({ ...prev, payment_method: methodId }));
     }
   };
 
   const handleSubmitProof = async () => {
-    if (!uploadedFile) {
-      setError('Please select a payment screenshot');
+    if (uploadedFiles.length === 0) {
+      setError('Please upload at least one payment screenshot');
       return;
     }
 
@@ -117,9 +114,15 @@ export default function PaymentPage() {
 
     try {
       const formData = new FormData();
-      formData.append('image', uploadedFile);
+      
+      // Add all uploaded files
+      uploadedFiles.forEach((uploadedFile, index) => {
+        formData.append(`image_${index}`, uploadedFile.file);
+      });
+      
       formData.append('submission_id', submission.id);
       formData.append('order_id', orderId as string);
+      formData.append('payment_method', selectedPaymentMethod || submission.payment_method);
 
       const response = await fetch('/api/payments/upload-proof', {
         method: 'POST',
@@ -306,15 +309,36 @@ export default function PaymentPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payment Instructions</h1>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-gray-900">Payment Process</h1>
             <p className="text-gray-600">Complete your payment to secure your order</p>
+          </div>
+          
+          {/* Step indicator */}
+          <div className="flex items-center gap-2 text-sm">
+            <div className={`px-3 py-1 rounded-full ${
+              currentStep === 'method' ? 'bg-primary text-white' : 
+              selectedPaymentMethod ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+            }`}>
+              1. Method
+            </div>
+            <div className={`px-3 py-1 rounded-full ${
+              currentStep === 'upload' ? 'bg-primary text-white' : 
+              uploadedFiles.length > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+            }`}>
+              2. Upload
+            </div>
+            <div className={`px-3 py-1 rounded-full ${
+              currentStep === 'instructions' || paymentSent ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+            }`}>
+              3. Done
+            </div>
           </div>
         </div>
 
@@ -362,174 +386,79 @@ export default function PaymentPage() {
           </CardContent>
         </Card>
 
-        {/* Payment Instructions */}
-        {paymentInstructions && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                {paymentInstructions.name} Payment
-              </CardTitle>
-              <CardDescription>
-                Follow these steps to complete your payment
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Account Details */}
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-3">Account Details</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Account Number:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono">{paymentInstructions.account}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => copyToClipboard(paymentInstructions.account)}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Account Name:</span>
-                    <span className="font-medium">{paymentInstructions.accountName}</span>
-                  </div>
-                  {paymentInstructions.bank && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Bank:</span>
-                      <span>{paymentInstructions.bank}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Amount:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-lg text-primary">
-                        {order.currency === 'PHP' ? '₱' : 'RM'}{totalAmount.toFixed(2)}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => copyToClipboard(totalAmount.toFixed(2))}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Reference:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm">{submission.payment_reference}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => copyToClipboard(submission.payment_reference)}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Steps */}
-              <div>
-                <h4 className="font-medium mb-3">Payment Steps</h4>
-                <ol className="space-y-2">
-                  {paymentInstructions.steps.map((step, index) => (
-                    <li key={index} className="flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full text-xs flex items-center justify-center">
-                        {index + 1}
-                      </span>
-                      <span className="text-sm">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              {/* QR Code placeholder */}
-              {paymentInstructions.qrAvailable && (
-                <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
-                  <QrCode className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">QR Code coming soon</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Upload Payment Proof */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Upload Payment Proof
-            </CardTitle>
-            <CardDescription>
-              Take a screenshot of your payment confirmation and upload it here
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              {uploadedFile ? (
-                <div className="space-y-2">
-                  <FileImage className="h-8 w-8 text-green-600 mx-auto" />
-                  <p className="text-sm font-medium text-green-600">{uploadedFile.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setUploadedFile(null)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Smartphone className="h-8 w-8 text-gray-400 mx-auto" />
-                  <p className="text-sm text-gray-600">Upload your payment screenshot</p>
-                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                </div>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{error}</p>
+        {/* Step 1: Payment Method Selection */}
+        {currentStep === 'method' && (
+          <>
+            <PaymentMethodSelector
+              country={order.currency === 'PHP' ? 'PH' : 'MY'}
+              selectedMethod={selectedPaymentMethod}
+              onMethodSelect={handlePaymentMethodSelect}
+              orderAmount={totalAmount}
+              currency={order.currency}
+            />
+            
+            {selectedPaymentMethod && (
+              <div className="flex justify-end">
+                <Button onClick={() => setCurrentStep('upload')}>
+                  Continue to Upload
+                  <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                </Button>
               </div>
             )}
+          </>
+        )}
 
-            <Button
-              onClick={handleSubmitProof}
-              disabled={!uploadedFile || uploading}
-              className="w-full"
-            >
-              {uploading ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Uploading...
-                </div>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Submit Payment Proof
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Step 2: Payment Proof Upload */}
+        {currentStep === 'upload' && (
+          <>
+            <PaymentProofUpload
+              onFilesChange={handleFilesChange}
+              maxFiles={3}
+              maxFileSize={10}
+              requiredAmount={totalAmount}
+              currency={order.currency}
+              paymentMethod={selectedPaymentMethod || submission.payment_method}
+              submissionId={submission.id}
+            />
+            
+            <div className="flex justify-between">
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentStep('method')}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Method
+              </Button>
+              
+              <Button
+                onClick={handleSubmitProof}
+                disabled={uploadedFiles.length === 0 || uploading}
+              >
+                {uploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Submit Payment Proof
+                  </>
+                )}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          </div>
+        )}
 
         {/* Important Notes */}
         <Card className="bg-amber-50 border-amber-200">
@@ -541,8 +470,9 @@ export default function PaymentPage() {
                 <ul className="space-y-1 list-disc list-inside">
                   <li>Pay the exact amount: {order.currency === 'PHP' ? '₱' : 'RM'}{totalAmount.toFixed(2)}</li>
                   <li>Include payment reference: {submission.payment_reference}</li>
-                  <li>Upload clear screenshot showing transaction details</li>
+                  <li>Upload clear screenshots showing transaction details</li>
                   <li>Payment must be completed within 24 hours</li>
+                  <li>Our AI will automatically verify your payment proof</li>
                   <li>Contact support if you encounter any issues</li>
                 </ul>
               </div>

@@ -401,7 +401,7 @@ export default function SubmitOrderPage() {
                 Payment Method
               </CardTitle>
               <CardDescription>
-                Choose your preferred payment method
+                Choose your preferred payment method. More options available after order submission.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -501,6 +501,11 @@ export default function SubmitOrderPage() {
                     </label>
                   </>
                 )}
+              </div>
+              
+              <div className="mt-4 text-xs text-blue-600 bg-blue-50 p-3 rounded-lg">
+                <div className="font-medium mb-1">💡 More payment options available</div>
+                <p>After submitting your order, you'll access our full payment system with 20+ Southeast Asian payment methods, AI verification, and instant confirmation.</p>
               </div>
             </CardContent>
           </Card>

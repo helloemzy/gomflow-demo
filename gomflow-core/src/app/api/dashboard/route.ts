@@ -1,10 +1,53 @@
 import { createSupabaseServerClient, supabaseUtils } from '@/lib/supabase'
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiResponse, DashboardStats } from '@gomflow/shared'
+import { demoService } from '@/lib/demo-service'
 
 // GET /api/dashboard - Get dashboard statistics for authenticated user
 export async function GET(request: NextRequest) {
   try {
+    // Check if in demo mode
+    if (demoService.isDemoMode()) {
+      const mockData = demoService.getAnalyticsMockData()
+      const dashboardData = {
+        stats: {
+          totalOrders: mockData.totalOrders,
+          totalRevenue: mockData.totalRevenue,
+          activeOrders: mockData.activeOrders,
+          completionRate: mockData.completionRate,
+          averageOrderValue: mockData.averageOrderValue
+        } as DashboardStats,
+        recentOrders: mockData.recentOrders,
+        recentSubmissions: await demoService.getDemoSubmissions(),
+        pendingRemindersCount: 3,
+        quickActions: [
+          {
+            title: 'Create New Order (Demo)',
+            description: 'Create a demo group order',
+            href: '/orders/create',
+            icon: 'plus'
+          },
+          {
+            title: 'View Demo Orders',
+            description: 'Browse existing demo orders',
+            href: '/orders',
+            icon: 'list'
+          },
+          {
+            title: 'Demo Analytics',
+            description: 'View analytics dashboard',
+            href: '/dashboard/analytics',
+            icon: 'bar-chart'
+          }
+        ]
+      }
+
+      return NextResponse.json<ApiResponse>({
+        success: true,
+        data: dashboardData
+      })
+    }
+
     const supabase = createSupabaseServerClient()
     
     // Get authenticated user

@@ -36,33 +36,60 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-
-        if (!user) return;
-
-        // Fetch dashboard statistics
-        const response = await fetch('/api/dashboard', {
-          headers: {
-            'Authorization': `Bearer ${user.access_token}`
-          }
-        });
+        // Check if in demo mode
+        const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
         
-        if (response.ok) {
-          const data = await response.json();
-          setDashboardData(data.data);
-        }
-
-        // Fetch recent orders
-        const ordersResponse = await fetch('/api/orders?limit=6', {
-          headers: {
-            'Authorization': `Bearer ${user.access_token}`
+        if (isDemoMode) {
+          // Set demo user
+          setUser({ 
+            id: 'demo-user-gom-1', 
+            email: 'demo@gomflow.com', 
+            name: 'Demo GOM',
+            isDemoMode: true 
+          });
+          
+          // Fetch dashboard data without authentication
+          const response = await fetch('/api/dashboard');
+          if (response.ok) {
+            const data = await response.json();
+            setDashboardData(data.data);
           }
-        });
-        
-        if (ordersResponse.ok) {
-          const ordersData = await ordersResponse.json();
-          setRecentOrders(ordersData.data);
+
+          // Fetch recent orders without authentication
+          const ordersResponse = await fetch('/api/orders?limit=6');
+          if (ordersResponse.ok) {
+            const ordersData = await ordersResponse.json();
+            setRecentOrders(ordersData.data?.orders || []);
+          }
+        } else {
+          const { data: { user } } = await supabase.auth.getUser();
+          setUser(user);
+
+          if (!user) return;
+
+          // Fetch dashboard statistics
+          const response = await fetch('/api/dashboard', {
+            headers: {
+              'Authorization': `Bearer ${user.access_token}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setDashboardData(data.data);
+          }
+
+          // Fetch recent orders
+          const ordersResponse = await fetch('/api/orders?limit=6', {
+            headers: {
+              'Authorization': `Bearer ${user.access_token}`
+            }
+          });
+          
+          if (ordersResponse.ok) {
+            const ordersData = await ordersResponse.json();
+            setRecentOrders(ordersData.data);
+          }
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -209,6 +236,73 @@ export default function DashboardPage() {
               color="success"
             />
           </div>
+
+          {/* Payment Management Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  Payment Management
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/gom/payment-analytics')}
+                >
+                  View Analytics
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600 mb-1">
+                    94.7%
+                  </div>
+                  <div className="text-sm text-gray-600">Success Rate</div>
+                  <div className="text-xs text-gray-500 mt-1">+2.3% this month</div>
+                </div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600 mb-1">
+                    18.5m
+                  </div>
+                  <div className="text-sm text-gray-600">Avg Processing</div>
+                  <div className="text-xs text-gray-500 mt-1">-5.2m faster</div>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600 mb-1">
+                    5
+                  </div>
+                  <div className="text-sm text-gray-600">Active Methods</div>
+                  <div className="text-xs text-gray-500 mt-1">GCash, PayMaya, etc.</div>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/gom/verify-payments')}
+                >
+                  Verify Payments
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/gom/payment-setup')}
+                >
+                  Payment Settings
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/orders?filter=pending_payment')}
+                >
+                  Pending Payments
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Quick stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

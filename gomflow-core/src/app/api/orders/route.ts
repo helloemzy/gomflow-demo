@@ -1,10 +1,28 @@
 import { createSupabaseServerClient, supabaseUtils } from '@/lib/supabase'
 import { NextRequest, NextResponse } from 'next/server'
 import type { ApiResponse } from '@gomflow/shared'
+import { demoService } from '@/lib/demo-service'
 
 // GET /api/orders - Fetch user's orders
 export async function GET(request: NextRequest) {
   try {
+    // Check if in demo mode
+    if (demoService.isDemoMode()) {
+      const orders = await demoService.getDemoOrders()
+      return NextResponse.json<ApiResponse>({
+        success: true,
+        data: {
+          orders,
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: orders.length,
+            totalPages: 1
+          }
+        }
+      })
+    }
+
     const supabase = createSupabaseServerClient()
     
     // Get authenticated user
