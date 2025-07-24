@@ -201,7 +201,7 @@ export default function Home() {
             <p className="text-sm text-gray-500 mt-4">
               ✨ Free tier available • 14-day trial • Plans from $9/month
             </p>
-            {/* Force deployment refresh */}
+            {/* Force deployment refresh v2 */}
           </div>
           
           <div className="relative">
