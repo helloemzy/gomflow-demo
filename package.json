@@ -1,41 +1,38 @@
 {
   "name": "gomflow-demo",
-  "version": "1.0.0",
-  "description": "GOMFLOW Platform - Demo Version for K-pop Group Order Management",
-  "keywords": ["k-pop", "group-orders", "southeast-asia", "payment-automation", "saas"],
-  "author": "Emily Ho <emily@gomflow.com>",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "demo": "./start-demo.sh",
-    "stop-demo": "./stop-demo.sh",
-    "build": "cd gomflow-core && npm run build",
-    "start": "cd gomflow-core && npm start",
-    "dev": "cd gomflow-core && npm run dev",
-    "test": "npm run test:core && npm run test:services",
-    "test:core": "cd gomflow-core && npm test",
-    "test:services": "cd gomflow-discord && npm test && cd ../gomflow-payments && npm test",
-    "install-all": "npm run install:shared && npm run install:core && npm run install:services",
-    "install:shared": "cd gomflow-shared && npm install",
-    "install:core": "cd gomflow-core && npm install",
-    "install:services": "cd gomflow-whatsapp && npm install && cd ../gomflow-telegram && npm install && cd ../gomflow-discord && npm install && cd ../gomflow-payments && npm install && cd ../gomflow-smart-agent && npm install",
-    "setup": "npm run install-all && npm run build:shared",
-    "build:shared": "cd gomflow-shared && npm run build"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/gomflow-demo.git"
+  "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.14",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.525.0",
+    "next": "14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7"
   },
-  "homepage": "https://gomflow-demo.vercel.app",
-  "bugs": {
-    "url": "https://github.com/yourusername/gomflow-demo/issues"
-  },
-  "workspaces": [
-    "gomflow-*"
-  ],
   "devDependencies": {
-    "@types/node": "^20.10.0"
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.2.2"
   }
 }
