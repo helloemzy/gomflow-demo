@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [showDemo, setShowDemo] = useState(false);
@@ -11,13 +10,12 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <Button 
+            <button 
               onClick={() => setShowDemo(false)}
-              className="mb-4"
-              variant="outline"
+              className="mb-4 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
             >
               ← Back to Landing
-            </Button>
+            </button>
             <h1 className="text-4xl font-bold mb-4">GOMFLOW Demo Dashboard</h1>
             <p className="text-gray-600">This is a simplified demo of the GOMFLOW platform</p>
           </div>
@@ -46,12 +44,12 @@ export default function Home() {
             <p className="mb-6 opacity-90">
               Upload payment screenshots and watch our AI automatically verify and process them!
             </p>
-            <Button 
-              className="bg-white text-purple-600 hover:bg-gray-100"
+            <button 
+              className="bg-white text-purple-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium transition-colors"
               onClick={() => alert('🤖 AI Processing Complete!\\n\\n✅ Payment Verified:\\n• GCash payment of ₱1,800\\n• SEVENTEEN album order\\n• 96% confidence score\\n• Auto-approved & updated')}
             >
               Try AI Demo
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -76,19 +74,18 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
+              <button 
                 onClick={() => window.location.href = '/pricing'}
-                className="text-purple-600 hover:text-purple-700"
+                className="text-purple-600 hover:text-purple-700 px-4 py-2 rounded-md transition-colors"
               >
                 Pricing
-              </Button>
-              <Button 
+              </button>
+              <button 
                 onClick={() => setShowDemo(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2 rounded-md font-medium transition-colors"
               >
                 Try Demo
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -108,21 +105,18 @@ export default function Home() {
             Built by GOMs, for GOMs who are tired of spreadsheet hell.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            <button 
+              className="text-lg px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-md font-medium transition-colors"
               onClick={() => setShowDemo(true)}
             >
               See It In Action
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-lg px-8 py-4 border-purple-300 text-purple-600 hover:bg-purple-50"
+            </button>
+            <button 
+              className="text-lg px-8 py-4 border-2 border-purple-300 text-purple-600 hover:bg-purple-50 rounded-md font-medium transition-colors"
               onClick={() => window.location.href = '/pricing'}
             >
               View Pricing Plans
-            </Button>
+            </button>
           </div>
           <p className="text-sm text-gray-500 mt-4">
             ✨ Free tier available • 14-day trial • Plans from $12/month
@@ -184,9 +178,9 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Create orders in 2 minutes</h3>
               <p className="text-gray-600 mb-4">Album templates, automatic pricing, instant form generation</p>
-              <Button variant="ghost" className="text-purple-600 hover:text-purple-700 p-0 h-auto" onClick={() => setShowDemo(true)}>
+              <button className="text-purple-600 hover:text-purple-700 underline" onClick={() => setShowDemo(true)}>
                 Try creating a SEVENTEEN album order →
-              </Button>
+              </button>
             </div>
             <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
@@ -194,9 +188,9 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Payments track themselves</h3>
               <p className="text-gray-600 mb-4">AI matches payments to buyers automatically - no more screenshots chaos</p>
-              <Button variant="ghost" className="text-purple-600 hover:text-purple-700 p-0 h-auto" onClick={() => setShowDemo(true)}>
+              <button className="text-purple-600 hover:text-purple-700 underline" onClick={() => setShowDemo(true)}>
                 Upload any image to test →
-              </Button>
+              </button>
             </div>
             <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
@@ -204,9 +198,9 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Buyers get instant updates</h3>
               <p className="text-gray-600 mb-4">WhatsApp, Telegram, Discord bots keep everyone informed</p>
-              <Button variant="ghost" className="text-purple-600 hover:text-purple-700 p-0 h-auto" onClick={() => setShowDemo(true)}>
+              <button className="text-purple-600 hover:text-purple-700 underline" onClick={() => setShowDemo(true)}>
                 See bot responses →
-              </Button>
+              </button>
             </div>
             <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
@@ -214,9 +208,9 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Get your weekends back</h3>
               <p className="text-gray-600 mb-4">From 20 hours of manual work to 10 minutes of oversight</p>
-              <Button variant="ghost" className="text-purple-600 hover:text-purple-700 p-0 h-auto" onClick={() => setShowDemo(true)}>
+              <button className="text-purple-600 hover:text-purple-700 underline" onClick={() => setShowDemo(true)}>
                 Calculate your time savings →
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -233,21 +227,18 @@ export default function Home() {
             Your fans deserve better, and so do you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-white text-purple-600 hover:bg-gray-100"
+            <button 
+              className="text-lg px-8 py-4 bg-white text-purple-600 hover:bg-gray-100 rounded-md font-medium transition-colors"
               onClick={() => setShowDemo(true)}
             >
               Explore Live Demo
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="text-lg px-8 py-4 border-white text-white hover:bg-white/10"
+            </button>
+            <button 
+              className="text-lg px-8 py-4 border-2 border-white text-white hover:bg-white/10 rounded-md font-medium transition-colors"
               onClick={() => window.location.href = '/pricing'}
             >
               View Pricing Plans
-            </Button>
+            </button>
           </div>
           <p className="text-sm text-purple-200 mt-6">
             💜 Trusted by K-pop communities across Southeast Asia • Free tier available
